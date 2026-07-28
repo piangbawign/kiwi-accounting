@@ -499,7 +499,7 @@ Highlight:
             <div className="flex items-center gap-2">
               <h1 className="text-xl font-black tracking-tight text-white">AI Tax Advisor & Gap Analysis</h1>
               <span className="px-2 py-0.5 bg-indigo-500/30 text-indigo-200 border border-indigo-400/30 text-[10px] font-extrabold rounded-full uppercase tracking-wider">
-                Gemini 3.6 Flash
+                Gemini 2.0 Flash
               </span>
             </div>
             <p className="text-xs text-slate-300 mt-1">
@@ -981,7 +981,7 @@ Highlight:
                   <CheckCircle2 className="w-5 h-5 text-emerald-600" />
                   <span>AI Audit Complete for {appState.companySettings.legalName}</span>
                 </div>
-                <span className="text-[11px] text-emerald-700 font-medium">Model: Gemini 3.6 Flash</span>
+                <span className="text-[11px] text-emerald-700 font-medium">Model: Gemini 2.0 Flash</span>
               </div>
 
               <div className="bg-slate-50 border border-slate-200 rounded-xl p-6 text-xs text-slate-800 space-y-2 leading-relaxed font-sans">
