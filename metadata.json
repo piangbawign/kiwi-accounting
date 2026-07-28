@@ -1,0 +1,6 @@
+{
+  "name": "KiwiLedger - NZ Tax & Accounting",
+  "description": "GST-compliant personal and small business accounting app tailored for New Zealand tax laws, IRD returns, receipt scanning, and local storage.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
