@@ -58,7 +58,7 @@ Return a clean JSON object with the following schema:
 Ensure amounts are numbers. NZ GST is standard 15% (GST portion is Total * 3 / 23). If GST amount is printed on receipt, use that exact amount.`;
 
     const response = await ai.models.generateContent({
-      model: "gemini-1.5-flash",
+      model: "gemini-2.0-flash",
       contents: {
         parts: [
           {
@@ -124,7 +124,7 @@ Company context: Small Business Company Limited (NZBN: 9429041234567, GST 2-Mont
       : prompt;
 
     const response = await ai.models.generateContent({
-      model: "gemini-1.5-flash",
+      model: "gemini-2.0-flash",
       contents: fullMessage,
       config: {
         systemInstruction,
@@ -207,7 +207,7 @@ Transactions Data:
 ${JSON.stringify(transactions ? transactions.slice(0, 30) : [], null, 2)}`;
 
     const response = await ai.models.generateContent({
-      model: "gemini-1.5-flash",
+      model: "gemini-2.0-flash",
       contents: prompt,
       config: {
         responseMimeType: "application/json",
