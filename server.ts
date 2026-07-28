@@ -13,7 +13,7 @@ app.get("/api/health", (_req, res) => {
   res.json({ status: "ok", app: "KiwiLedger NZ Accounting" });
 });
 
-// AI Receipt Scanner using Gemini 3.6 Flash
+// AI Receipt Scanner using Gemini 2.0 Flash
 app.post("/api/scan-receipt", async (req, res) => {
   try {
     const { imageBase64, mimeType = "image/jpeg" } = req.body;
