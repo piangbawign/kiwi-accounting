@@ -1070,7 +1070,16 @@ function AppContent() {
 
   // Backup & Import
   const handleExportBackup = () => {
-    exportBackupJSON();
+    const jsonStr = exportBackupJSON();
+    const blob = new Blob([jsonStr], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `kiwi-ledger-backup-${new Date().toISOString().split('T')[0]}.json`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
   };
 
   const handleImportBackup = (jsonString: string) => {
