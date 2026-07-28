@@ -1,6 +1,6 @@
 services:
   - type: web
-    name: kiwi-ledger-accounting
+    name: shalom-accounting
     env: node
     plan: free
     buildCommand: npm install && npm run build
