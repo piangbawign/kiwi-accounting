@@ -369,13 +369,16 @@ export const ReceiptScannerView: React.FC<ReceiptScannerViewProps> = ({
     setPhotoScanResult(null);
 
     try {
+      const actualMimeType = previewUrl.split(';')[0].split(':')[1] || 'image/jpeg';
+      const cleanBase64Payload = previewUrl.includes(',') ? previewUrl.split(',')[1].replace(/\s+/g, '') : previewUrl.replace(/\s+/g, '');
+      
       const aiApiKey = localStorage.getItem('kiwi_ai_api_key');
       const response = await fetch('/api/scan-receipt', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          imageBase64: previewUrl,
-          mimeType: selectedFile?.type || 'image/jpeg',
+          imageBase64: cleanBase64Payload,
+          mimeType: actualMimeType,
           apiKey: aiApiKey || undefined,
         }),
       });

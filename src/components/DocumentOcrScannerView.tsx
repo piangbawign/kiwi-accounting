@@ -125,15 +125,16 @@ export const DocumentOcrScannerView: React.FC<DocumentOcrScannerViewProps> = ({
     );
 
     try {
+      const actualMimeType = item.dataUrl.split(';')[0].split(':')[1] || 'image/jpeg';
+      const cleanBase64Payload = item.dataUrl.includes(',') ? item.dataUrl.split(',')[1].replace(/\s+/g, '') : item.dataUrl.replace(/\s+/g, '');
+      
       const aiApiKey = localStorage.getItem('kiwi_ai_api_key');
       const response = await fetch('/api/scan-receipt', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          imageBase64: item.dataUrl,
-          mimeType: item.dataUrl.startsWith('data:application/pdf')
-            ? 'application/pdf'
-            : 'image/jpeg',
+          imageBase64: cleanBase64Payload,
+          mimeType: actualMimeType,
           apiKey: aiApiKey || undefined,
         }),
       });
