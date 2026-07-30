@@ -109,8 +109,10 @@ export const AutomatedTaxBackupModal: React.FC<AutomatedTaxBackupModalProps> = (
     a.download = `kiwiledger_backup_${snap.id}_${new Date().toISOString().split('T')[0]}.json`;
     document.body.appendChild(a);
     a.click();
-    document.body.removeChild(a);
-    URL.revokeObjectURL(url);
+    setTimeout(() => {
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+    }, 1000);
   };
 
   if (!isOpen) return null;

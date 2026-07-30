@@ -88,6 +88,7 @@ export const DocumentOcrScannerView: React.FC<DocumentOcrScannerViewProps> = ({
     );
 
     try {
+      const aiApiKey = localStorage.getItem('kiwi_ai_api_key');
       const response = await fetch('/api/scan-receipt', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -96,6 +97,7 @@ export const DocumentOcrScannerView: React.FC<DocumentOcrScannerViewProps> = ({
           mimeType: item.dataUrl.startsWith('data:application/pdf')
             ? 'application/pdf'
             : 'image/jpeg',
+          apiKey: aiApiKey || undefined,
         }),
       });
 

@@ -67,9 +67,15 @@ import { BusinessEntity,  BankFeedRule,
   CustomDashboardMetric, } from './types';
 
 function AppContent() {
+  // Check if we're in the direct external client portal mode
+  const isExternalPortal = window.location.pathname.includes('/portal/client') || window.location.search.includes('token=');
+  const searchParams = new URLSearchParams(window.location.search);
+  const externalPortalName = searchParams.get('name') || '';
+  const externalPortalToken = searchParams.get('token') || '';
+
   const [appState, setAppState] = useState<AppState>(loadKiwiLedgerState);
-  const [activeTab, setActiveTab] = useState('DASHBOARD');
-  const [isUnlocked, setIsUnlocked] = useState(!appState.securityPin);
+  const [activeTab, setActiveTab] = useState(isExternalPortal ? 'CLIENT_PORTAL' : 'DASHBOARD');
+  const [isUnlocked, setIsUnlocked] = useState(isExternalPortal || !appState.securityPin);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [showQuickAddModal, setShowQuickAddModal] = useState(false);
   const [showKeyboardShortcutsModal, setShowKeyboardShortcutsModal] = useState(false);
@@ -1078,8 +1084,10 @@ function AppContent() {
     a.download = `kiwi-ledger-backup-${new Date().toISOString().split('T')[0]}.json`;
     document.body.appendChild(a);
     a.click();
-    document.body.removeChild(a);
-    URL.revokeObjectURL(url);
+    setTimeout(() => {
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+    }, 1000);
   };
 
   const handleImportBackup = (jsonString: string) => {
@@ -1303,6 +1311,23 @@ function AppContent() {
     gstNumber: activeEntity?.gstNumber || appState.companySettings.gstNumber,
     entityType: activeEntity?.entityType || appState.companySettings.entityType,
   };
+
+  if (isExternalPortal) {
+    return (
+      <div className="min-h-[100dvh] bg-slate-100/70 dark:bg-slate-950 font-sans text-slate-900 dark:text-slate-100 flex flex-col">
+        <main className="flex-1 p-3 sm:p-6 overflow-y-auto min-w-0 max-w-6xl mx-auto w-full">
+          <ClientPortalView 
+            invoices={appState.invoices}
+            companySettings={appState.companySettings}
+            onMarkInvoicePaid={(id) => handleUpdateInvoices(appState.invoices.map(i => i.id === id ? { ...i, status: 'PAID' } : i))}
+            isExternalMode={true}
+            externalClientName={externalPortalName}
+            externalToken={externalPortalToken}
+          />
+        </main>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-[100dvh] bg-slate-100/70 dark:bg-slate-950 font-sans text-slate-900 dark:text-slate-100 flex flex-col">

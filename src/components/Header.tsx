@@ -165,7 +165,7 @@ export const Header: React.FC<HeaderProps> = ({
         <div className="flex flex-col">
           <div className="flex items-center gap-1 sm:gap-1.5">
             <span className="font-extrabold text-xs sm:text-base text-slate-900 dark:text-slate-100 tracking-tight truncate max-w-[110px] sm:max-w-none">
-              KiwiLedger<span className="hidden sm:inline"> Pro</span>
+              Shalom accounting
             </span>
             <span className="hidden sm:inline px-1.5 py-0.5 bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 rounded text-[10px] sm:text-[11px] font-semibold border border-slate-200/80 dark:border-slate-700">
               FY 2025/26

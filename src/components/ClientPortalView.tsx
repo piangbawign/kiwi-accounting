@@ -37,6 +37,9 @@ interface ClientPortalViewProps {
   invoices: Invoice[];
   companySettings: CompanySettings;
   onMarkInvoicePaid: (id: string) => void;
+  isExternalMode?: boolean;
+  externalClientName?: string;
+  externalToken?: string;
 }
 
 export interface CustomClientProfile {
@@ -95,9 +98,12 @@ export const ClientPortalView: React.FC<ClientPortalViewProps> = ({
   invoices,
   companySettings,
   onMarkInvoicePaid,
+  isExternalMode = false,
+  externalClientName = '',
+  externalToken = '',
 }) => {
   const [customClients, setCustomClients] = useState<CustomClientProfile[]>(DEFAULT_CUSTOM_CLIENTS);
-  const [selectedClient, setSelectedClient] = useState<string>('');
+  const [selectedClient, setSelectedClient] = useState<string>(isExternalMode ? externalClientName : '');
   const [searchQuery, setSearchQuery] = useState('');
   const [activePortalTab, setActivePortalTab] = useState<'INVOICES' | 'STATEMENT' | 'PAYMENT' | 'CLIENT_PROFILE'>('INVOICES');
   const [selectedInvoice, setSelectedInvoice] = useState<Invoice | null>(null);
@@ -170,7 +176,10 @@ export const ClientPortalView: React.FC<ClientPortalViewProps> = ({
   const totalOutstanding = unpaidInvoices.reduce((acc, i) => acc + i.total, 0);
   const totalPaid = paidInvoices.reduce((acc, i) => acc + i.total, 0);
 
-  const portalUrl = `https://kiwiledger.co.nz/portal/client?name=${encodeURIComponent(activeClientName)}&token=${activeClientProfile.portalToken}`;
+  // The portal URL generation needs to use window.location.origin instead of hardcoded kiwiledger.co.nz
+  const portalUrl = typeof window !== 'undefined' 
+    ? `${window.location.origin}/portal/client?name=${encodeURIComponent(activeClientName)}&token=${activeClientProfile.portalToken}`
+    : `https://kiwiledger.co.nz/portal/client?name=${encodeURIComponent(activeClientName)}&token=${activeClientProfile.portalToken}`;
 
   const handleCopyPortalLink = () => {
     navigator.clipboard.writeText(portalUrl);
@@ -332,24 +341,26 @@ export const ClientPortalView: React.FC<ClientPortalViewProps> = ({
           </p>
         </div>
 
-        <div className="flex flex-wrap items-center gap-2 shrink-0">
-          <button
-            type="button"
-            onClick={handleOpenAddClientModal}
-            className="px-3.5 py-2.5 bg-amber-500 hover:bg-amber-400 text-slate-950 font-extrabold text-xs rounded-xl shadow-md transition-all flex items-center gap-1.5"
-          >
-            <UserPlus className="w-4 h-4" /> Add Custom Client
-          </button>
+        {!isExternalMode && (
+          <div className="flex flex-wrap items-center gap-2 shrink-0">
+            <button
+              type="button"
+              onClick={handleOpenAddClientModal}
+              className="px-3.5 py-2.5 bg-amber-500 hover:bg-amber-400 text-slate-950 font-extrabold text-xs rounded-xl shadow-md transition-all flex items-center gap-1.5"
+            >
+              <UserPlus className="w-4 h-4" /> Add Custom Client
+            </button>
 
-          <button
-            type="button"
-            onClick={handleCopyPortalLink}
-            className="px-4 py-2.5 bg-teal-500 hover:bg-teal-400 text-slate-950 font-bold text-xs rounded-xl shadow-lg transition-all flex items-center gap-1.5"
-          >
-            {copiedLink ? <Check className="w-4 h-4" /> : <Copy className="w-4 h-4" />}
-            {copiedLink ? 'Portal Link Copied!' : 'Copy Portal Access Link'}
-          </button>
-        </div>
+            <button
+              type="button"
+              onClick={handleCopyPortalLink}
+              className="px-4 py-2.5 bg-teal-500 hover:bg-teal-400 text-slate-950 font-bold text-xs rounded-xl shadow-lg transition-all flex items-center gap-1.5"
+            >
+              {copiedLink ? <Check className="w-4 h-4" /> : <Copy className="w-4 h-4" />}
+              {copiedLink ? 'Portal Link Copied!' : 'Copy Portal Access Link'}
+            </button>
+          </div>
+        )}
       </div>
 
       {paymentSuccessMsg && (
@@ -368,8 +379,9 @@ export const ClientPortalView: React.FC<ClientPortalViewProps> = ({
         </div>
       )}
 
-      {/* Client Selection Bar & Portal Simulation Bar */}
-      <div className="bg-white dark:bg-slate-900 p-5 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm space-y-4">
+      {/* Client Selection Bar & Portal Simulation Bar - HIDE IN EXTERNAL MODE */}
+      {!isExternalMode && (
+        <div className="bg-white dark:bg-slate-900 p-5 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm space-y-4">
         <div className="flex flex-col md:flex-row items-center justify-between gap-4">
           
           <div className="flex flex-col sm:flex-row items-start sm:items-center gap-3 w-full md:w-auto">
@@ -507,6 +519,7 @@ export const ClientPortalView: React.FC<ClientPortalViewProps> = ({
           </div>
         </div>
       </div>
+      )}
 
       {/* Tabs */}
       <div className="flex items-center gap-2 border-b border-slate-200 dark:border-slate-800 pb-2 overflow-x-auto">
@@ -541,20 +554,22 @@ export const ClientPortalView: React.FC<ClientPortalViewProps> = ({
               : 'text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800'
           }`}
         >
-          Bank Remittance & Direct Deposit
+          <CreditCard className="w-3.5 h-3.5" /> Process Payment
         </button>
 
-        <button
-          type="button"
-          onClick={() => setActivePortalTab('CLIENT_PROFILE')}
-          className={`px-4 py-2 font-bold text-xs rounded-xl transition-all flex items-center gap-1.5 ${
-            activePortalTab === 'CLIENT_PROFILE'
-              ? 'bg-slate-900 text-white shadow-md dark:bg-teal-700'
-              : 'text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800'
-          }`}
-        >
-          <Settings className="w-3.5 h-3.5" /> Portal Clients Manager ({customClients.length})
-        </button>
+        {!isExternalMode && (
+          <button
+            type="button"
+            onClick={() => setActivePortalTab('CLIENT_PROFILE')}
+            className={`px-4 py-2 font-bold text-xs rounded-xl transition-all flex items-center gap-1.5 ${
+              activePortalTab === 'CLIENT_PROFILE'
+                ? 'bg-slate-900 text-white shadow-md dark:bg-teal-700'
+                : 'text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800'
+            }`}
+          >
+            <Settings className="w-3.5 h-3.5" /> Portal Clients Manager ({customClients.length})
+          </button>
+        )}
       </div>
 
       {/* TAB 1: INVOICES LIST */}

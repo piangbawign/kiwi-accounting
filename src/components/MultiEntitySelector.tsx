@@ -55,10 +55,10 @@ export const MultiEntitySelector: React.FC<MultiEntitySelectorProps> = ({
     activeEntityId === 'ALL'
       ? 'Consolidated (All Accounts)'
       : activeProfile
-      ? activeProfile.name
-      : activeEntity
-      ? activeEntity.tradingName || activeEntity.name
-      : 'Select Profile / Entity';
+        ? activeProfile.name
+        : activeEntity
+          ? activeEntity.tradingName || activeEntity.name
+          : 'Select Profile / Entity';
 
   const handleCreateEntity = (e: React.FormEvent) => {
     e.preventDefault();
@@ -94,13 +94,12 @@ export const MultiEntitySelector: React.FC<MultiEntitySelectorProps> = ({
       >
         <div className="flex items-center gap-2 overflow-hidden flex-1">
           <span
-            className={`w-2.5 h-2.5 rounded-full shrink-0 ${
-              activeEntityId === 'ALL'
+            className={`w-2.5 h-2.5 rounded-full shrink-0 ${activeEntityId === 'ALL'
                 ? 'bg-amber-500'
                 : activeProfile
-                ? 'bg-emerald-500'
-                : activeEntity?.colorBadge || 'bg-teal-600'
-            }`}
+                  ? 'bg-emerald-500'
+                  : activeEntity?.colorBadge || 'bg-teal-600'
+              }`}
           />
           <div className="flex flex-col text-left overflow-hidden">
             <span className="text-[9px] sm:text-[10px] text-slate-400 font-normal uppercase tracking-wider leading-none hidden sm:block">
@@ -137,11 +136,10 @@ export const MultiEntitySelector: React.FC<MultiEntitySelectorProps> = ({
                 onSelectEntity('ALL');
                 setIsOpen(false);
               }}
-              className={`w-full flex items-center justify-between px-3 py-2 rounded-xl text-left text-xs font-bold transition-all ${
-                activeEntityId === 'ALL'
+              className={`w-full flex items-center justify-between px-3 py-2 rounded-xl text-left text-xs font-bold transition-all ${activeEntityId === 'ALL'
                   ? 'bg-amber-50 text-amber-900 border border-amber-200'
                   : 'hover:bg-slate-50 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-200'
-              }`}
+                }`}
             >
               <div className="flex items-center gap-2">
                 <div className="w-6 h-6 rounded-lg bg-amber-500 text-white flex items-center justify-center font-black">
@@ -165,11 +163,10 @@ export const MultiEntitySelector: React.FC<MultiEntitySelectorProps> = ({
                 {userProfiles.map((prof) => (
                   <div
                     key={prof.id}
-                    className={`w-full flex items-center justify-between px-3 py-2 rounded-xl text-xs font-bold transition-all group ${
-                      activeEntityId === prof.id
+                    className={`w-full flex items-center justify-between px-3 py-2 rounded-xl text-xs font-bold transition-all group ${activeEntityId === prof.id
                         ? 'bg-emerald-50 dark:bg-emerald-950/50 text-emerald-900 dark:text-emerald-200 border border-emerald-200 dark:border-emerald-800'
                         : 'hover:bg-slate-50 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-200'
-                    }`}
+                      }`}
                   >
                     <button
                       type="button"
@@ -247,11 +244,10 @@ export const MultiEntitySelector: React.FC<MultiEntitySelectorProps> = ({
                 {entities.map((ent) => (
                   <div
                     key={ent.id}
-                    className={`w-full flex items-center justify-between px-3 py-2 rounded-xl text-xs font-bold transition-all group ${
-                      activeEntityId === ent.id
+                    className={`w-full flex items-center justify-between px-3 py-2 rounded-xl text-xs font-bold transition-all group ${activeEntityId === ent.id
                         ? 'bg-teal-50 dark:bg-teal-950/50 text-teal-900 dark:text-teal-200 border border-teal-200 dark:border-teal-800'
                         : 'hover:bg-slate-50 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-200'
-                    }`}
+                      }`}
                   >
                     <button
                       type="button"
@@ -262,9 +258,8 @@ export const MultiEntitySelector: React.FC<MultiEntitySelectorProps> = ({
                       className="flex-1 flex items-center gap-2 text-left"
                     >
                       <div
-                        className={`w-6 h-6 rounded-lg text-white flex items-center justify-center font-black shrink-0 ${
-                          ent.colorBadge || 'bg-teal-600'
-                        }`}
+                        className={`w-6 h-6 rounded-lg text-white flex items-center justify-center font-black shrink-0 ${ent.colorBadge || 'bg-teal-600'
+                          }`}
                       >
                         <Building2 className="w-3.5 h-3.5" />
                       </div>
@@ -450,9 +445,8 @@ export const MultiEntitySelector: React.FC<MultiEntitySelectorProps> = ({
                       key={color}
                       type="button"
                       onClick={() => setColorBadge(color)}
-                      className={`w-7 h-7 rounded-full ${color} ${
-                        colorBadge === color ? 'ring-2 ring-offset-2 ring-slate-800' : ''
-                      }`}
+                      className={`w-7 h-7 rounded-full ${color} ${colorBadge === color ? 'ring-2 ring-offset-2 ring-slate-800' : ''
+                        }`}
                     />
                   ))}
                 </div>

@@ -334,12 +334,14 @@ export const ReceiptScannerView: React.FC<ReceiptScannerViewProps> = ({
     setPhotoScanResult(null);
 
     try {
+      const aiApiKey = localStorage.getItem('kiwi_ai_api_key');
       const response = await fetch('/api/scan-receipt', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           imageBase64: previewUrl,
           mimeType: selectedFile?.type || 'image/jpeg',
+          apiKey: aiApiKey || undefined,
         }),
       });
 
@@ -728,7 +730,7 @@ export const ReceiptScannerView: React.FC<ReceiptScannerViewProps> = ({
             <div>
               <h2 className="text-sm font-extrabold text-slate-800 dark:text-slate-100 flex items-center gap-2">
                 <Sparkles className="w-4 h-4 text-amber-500" />
-                Gemini 2.0 Flash AI Receipt & Recipe Scanner
+                Gemini 3.6 Flash AI Receipt & Recipe Scanner
               </h2>
               <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">
                 Upload a photo of a paper receipt or printed recipe card to extract vendor, totals, ingredients, and instructions.

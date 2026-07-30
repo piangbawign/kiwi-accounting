@@ -258,12 +258,14 @@ How can I help you today? You can run an **IRD Tax Gap Analysis**, ask me about 
   const handleRunAiTaxGapAnalysis = async () => {
     setAnalyzingGap(true);
     try {
+      const geminiApiKey = localStorage.getItem('kiwi_ai_api_key');
       const res = await fetch('/api/tax-gap-analysis', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           transactions: appState.transactions,
           companySettings: appState.companySettings,
+          apiKey: geminiApiKey || undefined,
         }),
       });
 
@@ -368,6 +370,10 @@ How can I help you today? You can run an **IRD Tax Gap Analysis**, ask me about 
     setLoading(true);
 
     try {
+      const aiProvider = localStorage.getItem('kiwi_ai_provider') || 'GEMINI';
+      const geminiApiKey = localStorage.getItem('kiwi_ai_api_key');
+      const groqApiKey = localStorage.getItem('kiwi_groq_api_key');
+      
       const summaryContext = {
         company: appState.companySettings,
         transactionsCount: appState.transactions.length,
@@ -376,28 +382,55 @@ How can I help you today? You can run an **IRD Tax Gap Analysis**, ask me about 
         recentTransactionsSample: appState.transactions.slice(0, 8),
       };
 
-      const res = await fetch('/api/ai-advisor', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          prompt: query,
-          context: summaryContext,
-        }),
-      });
+      let answerText = '';
+      const promptText = `You are a professional New Zealand Tax Advisor and Accountant AI. 
+Context: ${JSON.stringify(summaryContext)}
+User Query: ${query}`;
 
-      const data = await res.json();
-
-      if (data.success && data.answer) {
-        const aiMsg: Message = {
-          id: (Date.now() + 1).toString(),
-          sender: 'ai',
-          text: data.answer,
-          timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
-        };
-        setMessages((prev) => [...prev, aiMsg]);
+      if (aiProvider === 'GEMINI') {
+        if (!geminiApiKey) throw new Error('No Gemini API Key found. Please add your key in Settings.');
+        const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-3.6-flash:generateContent?key=${geminiApiKey}`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            contents: [{ parts: [{ text: promptText }] }],
+            systemInstruction: { parts: [{ text: "You are a professional NZ tax expert." }]}
+          }),
+        });
+        const data = await res.json();
+        if (data.error) throw new Error(data.error.message || 'Gemini API Error');
+        answerText = data.candidates?.[0]?.content?.parts?.[0]?.text || "No response generated.";
+      } else if (aiProvider === 'GROQ') {
+        if (!groqApiKey) throw new Error('No Groq API Key found. Please add your key in Settings.');
+        const res = await fetch('https://api.groq.com/openai/v1/chat/completions', {
+          method: 'POST',
+          headers: {
+            'Authorization': `Bearer ${groqApiKey}`,
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({
+            model: "llama-3.3-70b-versatile",
+            messages: [
+              { role: "system", content: "You are a professional NZ tax expert." },
+              { role: "user", content: promptText }
+            ],
+            temperature: 0.2
+          })
+        });
+        const data = await res.json();
+        if (data.error) throw new Error(data.error.message || 'Groq API Error');
+        answerText = data.choices?.[0]?.message?.content || "No response generated.";
       } else {
-        throw new Error(data.error || 'Failed to receive AI response');
+        throw new Error('No valid AI Provider selected.');
       }
+
+      const aiMsg: Message = {
+        id: (Date.now() + 1).toString(),
+        sender: 'ai',
+        text: answerText,
+        timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+      };
+      setMessages((prev) => [...prev, aiMsg]);
     } catch (err: any) {
       const errorMsg: Message = {
         id: (Date.now() + 1).toString(),
@@ -423,6 +456,10 @@ Highlight:
 3. 3 specific actionable recommendations to optimize company tax efficiency for FY2025/26.`;
 
     try {
+      const aiProvider = localStorage.getItem('kiwi_ai_provider') || 'GEMINI';
+      const geminiApiKey = localStorage.getItem('kiwi_ai_api_key');
+      const groqApiKey = localStorage.getItem('kiwi_groq_api_key');
+      
       const auditContext = {
         company: appState.companySettings,
         transactions: appState.transactions,
@@ -430,21 +467,49 @@ Highlight:
         employees: appState.employees,
       };
 
-      const res = await fetch('/api/ai-advisor', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          prompt: auditPrompt,
-          context: auditContext,
-        }),
-      });
+      const promptText = `You are a professional New Zealand Tax Auditor AI.
+      ${auditPrompt}
+      Context data (Company, Transactions, Invoices, Employees): ${JSON.stringify(auditContext).substring(0, 15000)} // Trucated to prevent massive payloads
+      Provide a highly detailed, professional markdown report based ONLY on this context.`;
 
-      const data = await res.json();
-      if (data.success && data.answer) {
-        setAuditResult(data.answer);
+      let answerText = '';
+
+      if (aiProvider === 'GEMINI') {
+        if (!geminiApiKey) throw new Error('No Gemini API Key found. Please add your key in Settings.');
+        const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-3.6-flash:generateContent?key=${geminiApiKey}`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            contents: [{ parts: [{ text: promptText }] }],
+          }),
+        });
+        const data = await res.json();
+        if (data.error) throw new Error(data.error.message || 'Gemini API Error');
+        answerText = data.candidates?.[0]?.content?.parts?.[0]?.text || "No audit response generated.";
+      } else if (aiProvider === 'GROQ') {
+        if (!groqApiKey) throw new Error('No Groq API Key found. Please add your key in Settings.');
+        const res = await fetch('https://api.groq.com/openai/v1/chat/completions', {
+          method: 'POST',
+          headers: {
+            'Authorization': `Bearer ${groqApiKey}`,
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({
+            model: "llama-3.3-70b-versatile",
+            messages: [
+              { role: "system", content: "You are a professional NZ tax expert." },
+              { role: "user", content: promptText }
+            ],
+            temperature: 0.2
+          })
+        });
+        const data = await res.json();
+        if (data.error) throw new Error(data.error.message || 'Groq API Error');
+        answerText = data.choices?.[0]?.message?.content || "No audit response generated.";
       } else {
-        setAuditResult(`Error running audit: ${data.error || 'Server error'}`);
+        throw new Error('No valid AI Provider selected.');
       }
+      setAuditResult(answerText);
     } catch (err: any) {
       setAuditResult(`Failed to run AI audit: ${err?.message || 'Connection error'}`);
     } finally {
@@ -499,7 +564,7 @@ Highlight:
             <div className="flex items-center gap-2">
               <h1 className="text-xl font-black tracking-tight text-white">AI Tax Advisor & Gap Analysis</h1>
               <span className="px-2 py-0.5 bg-indigo-500/30 text-indigo-200 border border-indigo-400/30 text-[10px] font-extrabold rounded-full uppercase tracking-wider">
-                Gemini 2.0 Flash
+                Gemini 3.6 Flash
               </span>
             </div>
             <p className="text-xs text-slate-300 mt-1">
@@ -981,7 +1046,7 @@ Highlight:
                   <CheckCircle2 className="w-5 h-5 text-emerald-600" />
                   <span>AI Audit Complete for {appState.companySettings.legalName}</span>
                 </div>
-                <span className="text-[11px] text-emerald-700 font-medium">Model: Gemini 2.0 Flash</span>
+                <span className="text-[11px] text-emerald-700 font-medium">Model: Gemini 3.6 Flash</span>
               </div>
 
               <div className="bg-slate-50 border border-slate-200 rounded-xl p-6 text-xs text-slate-800 space-y-2 leading-relaxed font-sans">

@@ -190,8 +190,10 @@ export const InventoryView: React.FC<InventoryViewProps> = ({
     link.setAttribute('download', `Inventory_Stocktake_${new Date().toISOString().split('T')[0]}.csv`);
     document.body.appendChild(link);
     link.click();
-    document.body.removeChild(link);
-    URL.revokeObjectURL(url);
+    setTimeout(() => {
+      document.body.removeChild(link);
+      URL.revokeObjectURL(url);
+    }, 1000);
   };
 
   return (

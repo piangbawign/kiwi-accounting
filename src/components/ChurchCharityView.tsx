@@ -305,7 +305,10 @@ export const ChurchCharityView: React.FC<ChurchCharityViewProps> = ({
     link.setAttribute('download', filename);
     document.body.appendChild(link);
     link.click();
-    document.body.removeChild(link);
+    setTimeout(() => {
+      document.body.removeChild(link);
+      URL.revokeObjectURL(url);
+    }, 1000);
   };
 
   // 2. PRINT BUTTON TRIGGER

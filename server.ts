@@ -13,16 +13,16 @@ app.get("/api/health", (_req, res) => {
   res.json({ status: "ok", app: "KiwiLedger NZ Accounting" });
 });
 
-// AI Receipt Scanner using Gemini 2.0 Flash
+// AI Receipt Scanner using Gemini 3.6 Flash
 app.post("/api/scan-receipt", async (req, res) => {
   try {
-    const { imageBase64, mimeType = "image/jpeg" } = req.body;
+    const { imageBase64, mimeType = "image/jpeg", apiKey: customApiKey } = req.body;
 
     if (!imageBase64) {
       return res.status(400).json({ error: "Missing imageBase64 payload" });
     }
 
-    const apiKey = process.env.GEMINI_API_KEY;
+    const apiKey = customApiKey || process.env.GEMINI_API_KEY;
     if (!apiKey) {
       return res.status(500).json({ error: "GEMINI_API_KEY environment variable is missing" });
     }
@@ -36,7 +36,9 @@ app.post("/api/scan-receipt", async (req, res) => {
       },
     });
 
-    const cleanBase64 = imageBase64.replace(/^data:image\/\w+;base64,/, "");
+    const cleanBase64 = imageBase64.includes(",") 
+      ? imageBase64.substring(imageBase64.indexOf(",") + 1)
+      : imageBase64;
 
     const prompt = `You are a Senior NZ Chartered Accountant. Analyze this receipt/tax invoice image for New Zealand GST and tax deductible business expenses.
 Return a clean JSON object with the following schema:
@@ -58,7 +60,7 @@ Return a clean JSON object with the following schema:
 Ensure amounts are numbers. NZ GST is standard 15% (GST portion is Total * 3 / 23). If GST amount is printed on receipt, use that exact amount.`;
 
     const response = await ai.models.generateContent({
-      model: "gemini-2.0-flash",
+      model: "gemini-3.6-flash",
       contents: {
         parts: [
           {
@@ -93,13 +95,13 @@ Ensure amounts are numbers. NZ GST is standard 15% (GST portion is Total * 3 / 2
 // AI Tax & Accounting Advisor Endpoint
 app.post("/api/ai-advisor", async (req, res) => {
   try {
-    const { prompt, context } = req.body;
+    const { prompt, context, apiKey: customApiKey } = req.body;
 
     if (!prompt) {
       return res.status(400).json({ error: "Missing prompt parameter" });
     }
 
-    const apiKey = process.env.GEMINI_API_KEY;
+    const apiKey = customApiKey || process.env.GEMINI_API_KEY;
     if (!apiKey) {
       return res.status(500).json({ error: "GEMINI_API_KEY environment variable is missing" });
     }
@@ -124,7 +126,7 @@ Company context: Small Business Company Limited (NZBN: 9429041234567, GST 2-Mont
       : prompt;
 
     const response = await ai.models.generateContent({
-      model: "gemini-2.0-flash",
+      model: "gemini-3.6-flash",
       contents: fullMessage,
       config: {
         systemInstruction,
@@ -142,9 +144,9 @@ Company context: Small Business Company Limited (NZBN: 9429041234567, GST 2-Mont
 // AI Tax Gap Analysis Endpoint
 app.post("/api/tax-gap-analysis", async (req, res) => {
   try {
-    const { transactions, companySettings } = req.body;
+    const { transactions, companySettings, apiKey: customApiKey } = req.body;
 
-    const apiKey = process.env.GEMINI_API_KEY;
+    const apiKey = customApiKey || process.env.GEMINI_API_KEY;
     if (!apiKey) {
       return res.status(500).json({ error: "GEMINI_API_KEY environment variable is missing" });
     }
@@ -207,7 +209,7 @@ Transactions Data:
 ${JSON.stringify(transactions ? transactions.slice(0, 30) : [], null, 2)}`;
 
     const response = await ai.models.generateContent({
-      model: "gemini-2.0-flash",
+      model: "gemini-3.6-flash",
       contents: prompt,
       config: {
         responseMimeType: "application/json",

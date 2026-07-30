@@ -187,8 +187,10 @@ export const TransactionsView: React.FC<TransactionsViewProps> = ({
     link.setAttribute('download', `KiwiLedger_Transactions_${new Date().toISOString().split('T')[0]}.csv`);
     document.body.appendChild(link);
     link.click();
-    document.body.removeChild(link);
-    URL.revokeObjectURL(url);
+    setTimeout(() => {
+      document.body.removeChild(link);
+      URL.revokeObjectURL(url);
+    }, 1000);
   };
 
   const categoriesList = Array.from(new Set(transactions.map((t) => t.category)));
@@ -638,46 +640,6 @@ export const TransactionsView: React.FC<TransactionsViewProps> = ({
         />
       )}
 
-      {/* Floating Bulk Action Bar */}
-      {selectedTxIds.length > 0 && (
-        <div className="fixed bottom-6 left-1/2 -translate-x-1/2 z-40 bg-slate-900 text-white px-6 py-3.5 rounded-2xl shadow-2xl border border-slate-700 flex items-center gap-4 animate-in slide-in-from-bottom-4 duration-200">
-          <div className="flex items-center gap-2 border-r border-slate-700 pr-4">
-            <CheckSquare className="w-5 h-5 text-teal-400" />
-            <span className="text-xs font-extrabold">{selectedTxIds.length} Selected</span>
-          </div>
-
-          <div className="flex items-center gap-2">
-            <button
-              type="button"
-              onClick={() => setIsBulkModalOpen(true)}
-              className="px-4 py-2 bg-teal-500 hover:bg-teal-400 text-slate-950 font-extrabold text-xs rounded-xl transition-all shadow-sm flex items-center gap-1.5"
-            >
-              <Edit3 className="w-4 h-4" /> Bulk Batch Edit
-            </button>
-
-            <button
-              type="button"
-              onClick={() => {
-                if (confirm(`Delete ${selectedTxIds.length} selected entries permanently?`)) {
-                  handleBulkDelete();
-                }
-              }}
-              className="px-3.5 py-2 bg-rose-600/30 hover:bg-rose-600 text-rose-200 hover:text-white font-bold text-xs rounded-xl border border-rose-500/40 transition-all flex items-center gap-1.5"
-            >
-              <Trash2 className="w-4 h-4" /> Delete
-            </button>
-
-            <button
-              type="button"
-              onClick={() => setSelectedTxIds([])}
-              className="text-xs text-slate-400 hover:text-white ml-2 font-semibold"
-            >
-              Deselect All
-            </button>
-          </div>
-        </div>
-      )}
-
       {/* Bulk Edit Modal */}
       <BulkEditModal
         selectedCount={selectedTxIds.length}
@@ -709,6 +671,7 @@ export const TransactionsView: React.FC<TransactionsViewProps> = ({
         onBulkApplyGstType={(gst) => handleApplyBulkUpdates({ gstType: gst })}
         onBulkMarkReconciled={(rec) => handleApplyBulkUpdates({ isReconciled: rec })}
         onBulkDelete={handleBulkDelete}
+        onOpenBulkEditModal={() => setIsBulkModalOpen(true)}
       />
 
     </div>

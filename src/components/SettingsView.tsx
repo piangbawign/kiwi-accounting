@@ -23,6 +23,7 @@ import {
   Fingerprint,
   ScanFace,
   Loader2,
+  Sparkles,
 } from 'lucide-react';
 import { CompanySettings, UserProfile, Account } from '../types';
 import {
@@ -65,6 +66,9 @@ export const SettingsView: React.FC<SettingsViewProps> = ({
   // Local Settings Form State
   const [legalName, setLegalName] = useState(companySettings.legalName);
   const [tradingName, setTradingName] = useState(companySettings.tradingName);
+  const [aiProvider, setAiProvider] = useState(() => localStorage.getItem('kiwi_ai_provider') || 'GEMINI');
+  const [aiApiKey, setAiApiKey] = useState(() => localStorage.getItem('kiwi_ai_api_key') || '');
+  const [groqApiKey, setGroqApiKey] = useState(() => localStorage.getItem('kiwi_groq_api_key') || '');
   const [irdNumber, setIrdNumber] = useState(companySettings.irdNumber);
   const [nzbn, setNzbn] = useState(companySettings.nzbn || '9429041234567');
   const [ccNumber, setCcNumber] = useState(companySettings.ccNumber || 'CC58921');
@@ -289,6 +293,12 @@ export const SettingsView: React.FC<SettingsViewProps> = ({
 
       {/* User Profiles Management Section */}
       <div className="bg-white dark:bg-slate-900 p-6 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm space-y-4">
+        <div className="bg-slate-900 text-white p-4 rounded-xl flex items-center justify-between mb-6 shadow-sm border border-slate-800">
+        <div>
+          <h2 className="font-black text-sm">System Configuration</h2>
+          <p className="text-[10px] text-slate-400 mt-0.5">Manage preferences, security, and AI integrations</p>
+        </div>
+      </div>
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-slate-100 dark:border-slate-800">
           <div>
             <h3 className="text-base font-bold text-slate-800 dark:text-slate-100 flex items-center gap-2">
@@ -722,11 +732,91 @@ export const SettingsView: React.FC<SettingsViewProps> = ({
                 <RefreshCw className="w-3.5 h-3.5" /> Reset to NZ Demo Data
               </button>
             </div>
+          </div>
 
+          {/* AI Settings Box */}
+          <div className="bg-white dark:bg-slate-900 p-6 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm">
+            <h3 className="text-base font-bold text-slate-800 dark:text-slate-100 mb-2 flex items-center gap-2">
+              <Sparkles className="w-5 h-5 text-indigo-500" /> AI Tax Advisor Configuration
+            </h3>
+            <p className="text-xs text-slate-500 dark:text-slate-400 mb-4">
+              Bring your own API Key to enable real-time generative AI tax gap analysis. Stored locally.
+            </p>
+
+            <form onSubmit={(e) => {
+              e.preventDefault();
+              localStorage.setItem('kiwi_ai_provider', aiProvider);
+              
+              if (aiProvider === 'GEMINI') {
+                if (aiApiKey.trim()) {
+                  localStorage.setItem('kiwi_ai_api_key', aiApiKey.trim());
+                } else {
+                  localStorage.removeItem('kiwi_ai_api_key');
+                }
+              } else if (aiProvider === 'GROQ') {
+                if (groqApiKey.trim()) {
+                  localStorage.setItem('kiwi_groq_api_key', groqApiKey.trim());
+                } else {
+                  localStorage.removeItem('kiwi_groq_api_key');
+                }
+              }
+              alert('AI Provider settings saved securely to your browser!');
+            }} className="space-y-4">
+              
+              <div>
+                <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">
+                  AI Engine Provider:
+                </label>
+                <select
+                  value={aiProvider}
+                  onChange={(e) => setAiProvider(e.target.value)}
+                  className="w-full px-3 py-2 text-xs bg-slate-50 dark:bg-slate-800 border border-slate-300 dark:border-slate-700 rounded-xl focus:outline-none focus:border-indigo-500 dark:text-slate-100 font-medium"
+                >
+                  <option value="GEMINI">Google Gemini (Gemini 3.6 Flash)</option>
+                  <option value="GROQ">Groq (Llama 3 70B/8B)</option>
+                </select>
+              </div>
+
+              {aiProvider === 'GEMINI' && (
+                <div>
+                  <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">
+                    Google Gemini API Key:
+                  </label>
+                  <input
+                    type="password"
+                    value={aiApiKey}
+                    onChange={(e) => setAiApiKey(e.target.value)}
+                    placeholder="AIzaSy..."
+                    className="w-full px-3 py-2 text-xs bg-slate-50 dark:bg-slate-800 border border-slate-300 dark:border-slate-700 rounded-xl focus:outline-none focus:border-indigo-500 dark:text-slate-100 font-mono tracking-widest"
+                  />
+                </div>
+              )}
+
+              {aiProvider === 'GROQ' && (
+                <div>
+                  <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">
+                    Groq API Key:
+                  </label>
+                  <input
+                    type="password"
+                    value={groqApiKey}
+                    onChange={(e) => setGroqApiKey(e.target.value)}
+                    placeholder="gsk_..."
+                    className="w-full px-3 py-2 text-xs bg-slate-50 dark:bg-slate-800 border border-slate-300 dark:border-slate-700 rounded-xl focus:outline-none focus:border-indigo-500 dark:text-slate-100 font-mono tracking-widest"
+                  />
+                </div>
+              )}
+
+              <button
+                type="submit"
+                className="w-full py-2 bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-xs rounded-xl transition-all shadow-sm flex items-center justify-center gap-2"
+              >
+                Save AI Settings
+              </button>
+            </form>
           </div>
 
         </div>
-
       </div>
 
       {/* User Profile Create / Edit Modal */}
@@ -869,6 +959,7 @@ export const SettingsView: React.FC<SettingsViewProps> = ({
               </div>
             </form>
           </div>
+
         </div>
       )}
 

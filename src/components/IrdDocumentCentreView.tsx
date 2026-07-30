@@ -149,8 +149,10 @@ export const IrdDocumentCentreView: React.FC<IrdDocumentCentreViewProps> = ({ ap
     a.download = doc.name;
     document.body.appendChild(a);
     a.click();
-    document.body.removeChild(a);
-    URL.revokeObjectURL(url);
+    setTimeout(() => {
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+    }, 1000);
   };
 
   return (

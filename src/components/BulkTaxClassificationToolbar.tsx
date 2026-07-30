@@ -23,6 +23,7 @@ interface BulkTaxClassificationToolbarProps {
   onBulkToggleChurchCharity?: (isChurch: boolean) => void;
   onBulkMarkReconciled: (isReconciled: boolean) => void;
   onBulkDelete: () => void;
+  onOpenBulkEditModal?: () => void;
 }
 
 export const BulkTaxClassificationToolbar: React.FC<
@@ -36,6 +37,7 @@ export const BulkTaxClassificationToolbar: React.FC<
   onBulkToggleChurchCharity,
   onBulkMarkReconciled,
   onBulkDelete,
+  onOpenBulkEditModal,
 }) => {
   const [activeDropdown, setActiveDropdown] = useState<
     'CATEGORY' | 'IRD_CODE' | 'GST_TYPE' | null
@@ -53,6 +55,17 @@ export const BulkTaxClassificationToolbar: React.FC<
       </div>
 
       <div className="flex items-center gap-2 overflow-x-auto py-0.5 flex-1">
+        {onOpenBulkEditModal && (
+          <button
+            type="button"
+            onClick={onOpenBulkEditModal}
+            className="px-2.5 py-1.5 bg-teal-500 hover:bg-teal-400 text-slate-950 rounded-xl flex items-center gap-1 transition-all shrink-0 font-extrabold"
+          >
+            <Layers className="w-3.5 h-3.5" />
+            <span className="hidden md:inline">Batch Edit</span>
+          </button>
+        )}
+
         {/* Bulk Category Dropdown */}
         <div className="relative">
           <button
