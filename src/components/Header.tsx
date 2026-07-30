@@ -159,8 +159,8 @@ export const Header: React.FC<HeaderProps> = ({
           </button>
         )}
 
-        <div className="w-8 h-8 sm:w-9 sm:h-9 rounded-lg bg-blue-600 flex items-center justify-center text-white font-bold text-base sm:text-lg shadow-xs shrink-0">
-          🇳🇿
+        <div className="w-8 h-8 sm:w-9 sm:h-9 rounded-lg overflow-hidden flex items-center justify-center bg-slate-900 border border-slate-700/50 shadow-xs shrink-0">
+          <img src="/logo.jpeg" alt="Shalom Ledger Logo" className="w-full h-full object-cover" />
         </div>
         <div className="flex flex-col">
           <div className="flex items-center gap-1 sm:gap-1.5">
