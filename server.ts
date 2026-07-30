@@ -6,7 +6,7 @@ import { GoogleGenAI } from "@google/genai";
 const app = express();
 const PORT = process.env.PORT ? parseInt(process.env.PORT) : 3000;
 
-app.use(express.json({ limit: "10mb" }));
+app.use(express.json({ limit: "50mb" }));
 
 // Health Check
 app.get("/api/health", (_req, res) => {

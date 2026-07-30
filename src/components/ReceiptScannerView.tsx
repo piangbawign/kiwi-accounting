@@ -321,7 +321,42 @@ export const ReceiptScannerView: React.FC<ReceiptScannerViewProps> = ({
 
     const reader = new FileReader();
     reader.onloadend = () => {
-      setPreviewUrl(reader.result as string);
+      const result = reader.result as string;
+      if (file.type.startsWith('image/')) {
+        const img = new Image();
+        img.onload = () => {
+          const canvas = document.createElement('canvas');
+          const MAX_WIDTH = 1200;
+          const MAX_HEIGHT = 1600;
+          let width = img.width;
+          let height = img.height;
+
+          if (width > height) {
+            if (width > MAX_WIDTH) {
+              height *= MAX_WIDTH / width;
+              width = MAX_WIDTH;
+            }
+          } else {
+            if (height > MAX_HEIGHT) {
+              width *= MAX_HEIGHT / height;
+              height = MAX_HEIGHT;
+            }
+          }
+          canvas.width = width;
+          canvas.height = height;
+          const ctx = canvas.getContext('2d');
+          if (ctx) {
+            ctx.drawImage(img, 0, 0, width, height);
+            setPreviewUrl(canvas.toDataURL('image/jpeg', 0.8));
+          } else {
+            setPreviewUrl(result);
+          }
+        };
+        img.onerror = () => setPreviewUrl(result);
+        img.src = result;
+      } else {
+        setPreviewUrl(result);
+      }
     };
     reader.readAsDataURL(file);
   };

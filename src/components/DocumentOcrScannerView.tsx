@@ -65,12 +65,49 @@ export const DocumentOcrScannerView: React.FC<DocumentOcrScannerViewProps> = ({
     Array.from(files).forEach((file) => {
       const reader = new FileReader();
       reader.onload = async (e) => {
-        const dataUrl = e.target?.result as string;
+        const result = e.target?.result as string;
+        
+        let finalDataUrl = result;
+        if (file.type.startsWith('image/')) {
+          await new Promise<void>((resolve) => {
+            const img = new Image();
+            img.onload = () => {
+              const canvas = document.createElement('canvas');
+              const MAX_WIDTH = 1200;
+              const MAX_HEIGHT = 1600;
+              let width = img.width;
+              let height = img.height;
+
+              if (width > height) {
+                if (width > MAX_WIDTH) {
+                  height *= MAX_WIDTH / width;
+                  width = MAX_WIDTH;
+                }
+              } else {
+                if (height > MAX_HEIGHT) {
+                  width *= MAX_HEIGHT / height;
+                  height = MAX_HEIGHT;
+                }
+              }
+              canvas.width = width;
+              canvas.height = height;
+              const ctx = canvas.getContext('2d');
+              if (ctx) {
+                ctx.drawImage(img, 0, 0, width, height);
+                finalDataUrl = canvas.toDataURL('image/jpeg', 0.8);
+              }
+              resolve();
+            };
+            img.onerror = () => resolve();
+            img.src = result;
+          });
+        }
+
         const newItem: OcrResultItem = {
           id: `ocr-${Date.now()}-${Math.random().toString(36).substring(2, 7)}`,
           fileName: file.name,
           fileSize: `${(file.size / 1024).toFixed(0)} KB`,
-          dataUrl,
+          dataUrl: finalDataUrl,
           status: 'PENDING',
         };
 
