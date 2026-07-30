@@ -1,4 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
+import { scanReceipt } from '../services/geminiClient';
 import jsQR from 'jsqr';
 import {
   Scan,
@@ -373,22 +374,24 @@ export const ReceiptScannerView: React.FC<ReceiptScannerViewProps> = ({
       const cleanBase64Payload = previewUrl.includes(',') ? previewUrl.split(',')[1].replace(/\s+/g, '') : previewUrl.replace(/\s+/g, '');
       
       const aiApiKey = localStorage.getItem('kiwi_ai_api_key');
-      const response = await fetch('/api/scan-receipt', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          imageBase64: cleanBase64Payload,
-          mimeType: actualMimeType,
-          apiKey: aiApiKey || undefined,
-        }),
-      });
-
-      const data = await response.json();
-      if (!data.success) {
-        throw new Error(data.error || 'Failed to scan image with AI.');
+      if (!aiApiKey) {
+        throw new Error("Please add your Gemini API Key in Settings first.");
+      }
+      
+      const parsedData = await scanReceipt(cleanBase64Payload, actualMimeType, aiApiKey);
+      
+      if (!parsedData) {
+        throw new Error('Could not extract valid data from the receipt image.');
       }
 
-      setPhotoScanResult(data.result);
+      setPhotoScanResult({
+        merchant: parsedData.merchant,
+        date: parsedData.date,
+        totalAmount: parsedData.totalAmount,
+        gstAmount: parsedData.gstAmount,
+        category: parsedData.category,
+        notes: parsedData.notes,
+      });
     } catch (err: any) {
       console.error('Scan photo error:', err);
       setPhotoScanError(err?.message || 'Error parsing photo with AI.');

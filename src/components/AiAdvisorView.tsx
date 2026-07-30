@@ -259,23 +259,17 @@ How can I help you today? You can run an **IRD Tax Gap Analysis**, ask me about 
     setAnalyzingGap(true);
     try {
       const geminiApiKey = localStorage.getItem('kiwi_ai_api_key');
-      const res = await fetch('/api/tax-gap-analysis', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          transactions: appState.transactions,
-          companySettings: appState.companySettings,
-          apiKey: geminiApiKey || undefined,
-        }),
-      });
+      if (!geminiApiKey) {
+        throw new Error("Please add your Gemini API Key in Settings first.");
+      }
+      const data = await analyzeTaxGaps(appState.transactions, appState.companySettings, geminiApiKey);
 
-      const data = await res.json();
-      if (data.success && data.result) {
-        if (data.result.summary) {
-          setAiGapSummary(data.result.summary);
+      if (data) {
+        if (data.summary) {
+          setAiGapSummary(data.summary);
         }
-        if (Array.isArray(data.result.gaps) && data.result.gaps.length > 0) {
-          const mappedGaps: TaxGapItem[] = data.result.gaps.map((g: any, index: number) => ({
+        if (Array.isArray(data.gaps) && data.gaps.length > 0) {
+          const mappedGaps: TaxGapItem[] = data.gaps.map((g: any, index: number) => ({
             id: g.transactionId || `ai-gap-${index}-${Date.now()}`,
             transactionId: g.transactionId,
             merchant: g.description || 'Ledger Transaction',

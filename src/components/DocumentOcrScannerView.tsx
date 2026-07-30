@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { scanReceipt } from '../services/geminiClient';
 import {
   FileText,
   Upload,
@@ -129,20 +130,12 @@ export const DocumentOcrScannerView: React.FC<DocumentOcrScannerViewProps> = ({
       const cleanBase64Payload = item.dataUrl.includes(',') ? item.dataUrl.split(',')[1].replace(/\s+/g, '') : item.dataUrl.replace(/\s+/g, '');
       
       const aiApiKey = localStorage.getItem('kiwi_ai_api_key');
-      const response = await fetch('/api/scan-receipt', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          imageBase64: cleanBase64Payload,
-          mimeType: actualMimeType,
-          apiKey: aiApiKey || undefined,
-        }),
-      });
-
-      if (response.ok) {
-        const data = await response.json();
-        if (data.success && data.result) {
-          const res = data.result;
+      if (!aiApiKey) {
+        throw new Error("Please add your Gemini API Key in Settings first.");
+      }
+      
+      const res = await scanReceipt(cleanBase64Payload, actualMimeType, aiApiKey);
+      if (res) {
           const updatedItem: OcrResultItem = {
             ...item,
             status: 'SUCCESS',
@@ -165,7 +158,6 @@ export const DocumentOcrScannerView: React.FC<DocumentOcrScannerViewProps> = ({
           );
           if (!selectedItem) setSelectedItem(updatedItem);
           return;
-        }
       }
 
       throw new Error('Fallback to Rule Engine');
