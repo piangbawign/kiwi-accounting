@@ -1,6 +1,7 @@
 import { jsPDF } from 'jspdf';
 import { Invoice, CompanySettings, Transaction, ChurchDonationReceipt, ChurchDonor, AppState, PayrollEmployee, PayslipRecord } from '../types';
 import { calculateNZPayroll } from './nzTaxEngine';
+import { LOGO_BASE64 } from '../assets/logoBase64';
 
 /**
  * Generates an official IRD-compliant NZ Tax Invoice PDF
@@ -22,10 +23,14 @@ export function generateTaxInvoicePDF(invoice: Invoice, company: CompanySettings
   doc.setFillColor(15, 23, 42); // slate dark
   doc.rect(0, 0, 210, 35, 'F');
 
+  if (LOGO_BASE64) {
+    doc.addImage(LOGO_BASE64, 'PNG', 14, 8, 16, 16);
+  }
+
   doc.setTextColor(255, 255, 255);
   doc.setFont('helvetica', 'bold');
   doc.setFontSize(20);
-  doc.text('TAX INVOICE', 14, 18);
+  doc.text('TAX INVOICE', 35, 20);
 
   doc.setFontSize(10);
   doc.setFont('helvetica', 'normal');
@@ -176,10 +181,14 @@ export function generateProfitLossPDF(
   doc.setFillColor(15, 118, 110);
   doc.rect(0, 0, 210, 32, 'F');
 
+  if (LOGO_BASE64) {
+    doc.addImage(LOGO_BASE64, 'PNG', 14, 6, 14, 14);
+  }
+
   doc.setTextColor(255, 255, 255);
   doc.setFont('helvetica', 'bold');
   doc.setFontSize(18);
-  doc.text('PROFIT & LOSS STATEMENT', 14, 18);
+  doc.text('PROFIT & LOSS STATEMENT', 32, 16);
 
   doc.setFontSize(9);
   doc.setFont('helvetica', 'normal');
@@ -559,10 +568,14 @@ export function generateDonationReceiptPDF(
   doc.setFillColor(15, 23, 42);
   doc.rect(0, 0, 210, 36, 'F');
 
+  if (LOGO_BASE64) {
+    doc.addImage(LOGO_BASE64, 'PNG', 14, 8, 16, 16);
+  }
+
   doc.setTextColor(255, 255, 255);
   doc.setFont('helvetica', 'bold');
   doc.setFontSize(16);
-  doc.text('OFFICIAL DONATION TAX RECEIPT', 14, 18);
+  doc.text('OFFICIAL DONATION TAX RECEIPT', 35, 18);
 
   doc.setFontSize(9);
   doc.setFont('helvetica', 'normal');
@@ -1057,10 +1070,14 @@ export function buildSinglePayslipDoc(
   doc.setFillColor(15, 23, 42); // slate dark
   doc.rect(0, 0, 210, 40, 'F');
 
+  if (LOGO_BASE64) {
+    doc.addImage(LOGO_BASE64, 'PNG', 14, 8, 16, 16);
+  }
+
   doc.setTextColor(255, 255, 255);
   doc.setFont('helvetica', 'bold');
   doc.setFontSize(18);
-  doc.text('EMPLOYEE PAYSLIP', 14, 20);
+  doc.text('EMPLOYEE PAYSLIP', 35, 20);
 
   doc.setFontSize(9);
   doc.setFont('helvetica', 'normal');

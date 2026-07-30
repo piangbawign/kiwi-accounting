@@ -97,8 +97,8 @@ export const PinLockModal: React.FC<PinLockModalProps> = ({ correctPin, onUnlock
       <div className="bg-white dark:bg-slate-900 rounded-3xl shadow-2xl max-w-sm w-full p-6 sm:p-8 border border-slate-200 dark:border-slate-800 text-center animate-in fade-in zoom-in-95 duration-200">
         
         {/* Header Icon */}
-        <div className="w-16 h-16 bg-teal-100 dark:bg-teal-900/40 text-teal-800 dark:text-teal-300 rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-xs border border-teal-200 dark:border-teal-800/50">
-          <Lock className="w-8 h-8" />
+        <div className="w-16 h-16 bg-white rounded-2xl overflow-hidden flex items-center justify-center mx-auto mb-4 shadow-xs border border-slate-200">
+          <img src="/logo.png" alt="Shalom Ledger Logo" className="w-full h-full object-cover" />
         </div>
         
         <h2 className="text-2xl font-black text-slate-900 dark:text-slate-100 tracking-tight">KiwiLedger Security</h2>
